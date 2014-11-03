@@ -32,9 +32,11 @@ import junkion.implicits._
 
 val file = "/some/example/file.txt".file
 
+val s1: String = file.string
+
 val bytes: Array[Byte] = file.bytes.array
 val bb: ByteBuffer = file.bytes.byteBuffer
-val s1: String = file.bytes.string
+val s2: String = file.bytes.string
 
 val chars: Array[Char] = file.chars.array
 val cb: CharBuffer = file.chars.charBuffer
@@ -59,7 +61,8 @@ By default all operations involving `String` and `Char` use the UTF-8
 encoding, but alternate character encodings can be provided explicitly:
 
 ```scala
-val string: String = file.bytes.string("ISO-8859-1")
+val s1: String = file.string("Big5")
+val s2: String = file.bytes.string("ISO-8859-1")
 val chars: Array[Char] = file.chars("KOI8-R").array
 val lines: Iterator[String] = file.lines("UTF-16").iterator
 ```
