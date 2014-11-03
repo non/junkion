@@ -2,8 +2,8 @@
 
 ### Dedication
 
-> Take some wooden nickles / Look for Mr. Goodbar
-> Get your mojo working now / I'll show you how
+> Take some wooden nickles / Look for Mr. Goodbar /
+> Get your mojo working now / I'll show you how /
 > You can dare to be stupid!
 >
 > -- "Weird Al" Yankovich, "Dare To Be Stupid"
