@@ -32,7 +32,7 @@ include Junkion via the following `build.sbt` snippet:
 ```
 resolvers += "bintray/non" at "http://dl.bintray.com/non/maven"
 
-libraryDependencies += us.mocul %% junkion % "0.0.2"
+libraryDependencies += "us.mocul" %% "junkion" % "0.0.2"
 ```
 
 ### Recipes
