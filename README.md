@@ -21,6 +21,20 @@ designed to be used when you mostly aren't worried about supporting
 gigantic files, or a specific use case, but just want an easy-to-use
 library that is efficient in "normal" cases.
 
+### Getting Junkion
+
+Junkion is published to [bintray](https://bintray.com/) using the
+[bintray-sbt](https://github.com/softprops/bintray-sbt) plugin.
+
+Junkion supports Scala 2.10.x and 2.11.x. If you use SBT, you can
+include Junkion via the following `build.sbt` snippet:
+
+```
+resolvers += "bintray/non" at "http://dl.bintray.com/non/maven"
+
+libraryDependencies += us.mocul %% junkion % "0.0.2"
+```
+
 ### Recipes
 
 Junkion is really just a collection of very simple implicit methods

@@ -60,7 +60,7 @@ class BytesOps(val file: File) extends AnyVal {
       val n = ch.read(bb)
       if (n > -1) bb #:: next() else {
         ch.close()
-        Stream.end
+        Stream.Empty
       }
     }
     next()
