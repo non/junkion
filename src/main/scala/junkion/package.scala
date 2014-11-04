@@ -53,6 +53,19 @@ class BytesOps(val file: File) extends AnyVal {
   def byteBuffer(): ByteBuffer =
     ByteBuffer.wrap(array)
 
+  def chunked(): Stream[ByteBuffer] = {
+    val ch = new FileInputStream(file).getChannel()
+    def next(): Stream[ByteBuffer] = {
+      val bb = ByteBuffer.allocate(131072)
+      val n = ch.read(bb)
+      if (n > -1) bb #:: next() else {
+        ch.close()
+        Stream.end
+      }
+    }
+    next()
+  }
+
   def string: String =
     string()
 

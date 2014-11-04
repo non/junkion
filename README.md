@@ -25,7 +25,9 @@ library that is efficient in "normal" cases.
 
 Junkion is really just a collection of very simple implicit methods
 that should make the humdrum business of opening and working with
-small [1] files a bit easier.
+small files a bit easier. (I just mean a file that you don't
+necessarily mind loading into memory all at once. 50 MB probably
+qualifies as small, while 5 GB probably doesn't.)
 
 ```scala
 import junkion.implicits._
@@ -36,6 +38,7 @@ val s1: String = file.string
 
 val bytes: Array[Byte] = file.bytes.array
 val bb: ByteBuffer = file.bytes.byteBuffer
+val bbs: Stream[ByteBuffer] = file.bytes.chunked
 val s2: String = file.bytes.string
 
 val chars: Array[Char] = file.chars.array
@@ -52,10 +55,6 @@ val vector: Vector[String] = file.lines.vector
 val lineCount: Int = file.lines.foldLeft(0)((n, _) => n + 1)
 val wordCount: Int = file.lines.foldLeft(0)((n, s) => n + s.split(" +").length)
 ```
-
-([1] By "small" I just mean a file that you don't necessarily mind
-loading into memory all at once. 50 MB probably qualifies as small,
-while 5 GB probably doesn't.)
 
 By default all operations involving `String` and `Char` use the UTF-8
 encoding, but alternate character encodings can be provided explicitly:
