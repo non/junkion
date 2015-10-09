@@ -81,36 +81,33 @@ val lines: Iterator[String] = file.lines("UTF-16").iterator
 ```
 
 You can also write simple strings and characters to files using
-`.writer` (which return a `java.io.BufferedWriter`):
+`.write` and `.writelines`:
 
 ```scala
-val rows: Seq[String] = ...
+val file = "/tmp/data.txt".file
 
-// use .writer to open a writer
-val w = "report.txt".file.writer
-data.foreach(row => w.write(row + "\n"))
-w.close()
+file.write.string(s)     // s: String
+file.write.array(arr)    // arr: Array[String]
+file.write.iterator(it)  // it: Iterator[String]
+file.write.iterable(seq) // seq: Iterable[String]
 
-// alternately, use .withWriter
-"report2.txt".file.withWriter { w =>
-  data.foreach(row => w.write(row + "\n"))
-  // closes w automatically
+// append a newline after each string to be written
+file.writelines.string(s)
+file.writelines.array(arr)
+file.writelines.iterator(it)
+file.writelines.iterable(seq)
+
+// optionally specify encodings
+file.write("Big5").string(s)
+file.write("ISO-8859-1").array(arr)
+file.write("KOI8-R").iterator(it)
+file.write("UTF-16").iterable(seq)
+
+// optionally work directly with (w: BufferedWriter)
+file.write("UTF-8").using { w =>
+  ... /* writes to w, which is automatically closed */
 }
-
-// you can specify alternate charsets too
-val wr = "report-r.txt".file.writer("KOI8-R")
 ```
-
-For quick reference, `BufferedWriter` support the following useful
-methods:
-
-| Method      | Description                    |
-|-------------|--------------------------------|
-|`.close()`   | Close the writer.              |
-|`.newLine()` | Write a newline (`'\n'`).      |
-|`.write(s)`  | Write the string `s`.          |
-|`.write(c)`  | Write the character `c`.       |
-|`.write(cs)` | Write the character array `cs`.|
 
 ### Disclaimers
 

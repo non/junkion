@@ -15,6 +15,7 @@ import scala.collection.mutable
 object implicits {
   implicit def stringOps(s: String): StringOps = new StringOps(s)
   implicit def fileOps(file: File): FileOps = new FileOps(file)
+  implicit def writeOps(file: File): WriteOps = new WriteOps(file, "UTF-8")
 }
 
 class StringOps(val s: String) extends AnyVal {
@@ -23,23 +24,6 @@ class StringOps(val s: String) extends AnyVal {
 }
 
 class FileOps(val file: File) extends AnyVal {
-
-  def writer: BufferedWriter = writer()
-
-  def writer(cs: String = "UTF-8"): BufferedWriter = {
-    val fos = new FileOutputStream(file)
-    val osw = new OutputStreamWriter(fos, cs)
-    new BufferedWriter(osw)
-  }
-
-  def withWriter(f: BufferedWriter => Unit): Unit =
-    withWriter()(f)
-
-  def withWriter(cs: String = "UTF-8")(f: BufferedWriter => Unit): Unit = {
-    val w = writer(cs)
-    f(w)
-    w.close()
-  }
 
   def bytes(): BytesOps = new BytesOps(file)
 
@@ -51,6 +35,9 @@ class FileOps(val file: File) extends AnyVal {
 
   def string: String = new BytesOps(file).string()
   def string(cs: String = "UTF-8"): String = new BytesOps(file).string(cs)
+
+  def write(cs: String = "UTF-8"): WriteOps = new WriteOps(file, cs)
+  def writelines(cs: String = "UTF-8"): WriteLinesOps = new WriteLinesOps(file, cs)
 }
 
 class BytesOps(val file: File) extends AnyVal {
@@ -167,4 +154,79 @@ class LinesOps(file: File, cs: String) {
     }
     stream()
   }
+}
+
+trait WriteSupport {
+  protected[this] def makeWriter(file: File, cs: String): BufferedWriter = {
+    val fos = new FileOutputStream(file)
+    val osw = new OutputStreamWriter(fos, cs)
+    new BufferedWriter(osw)
+  }
+}
+
+class WriteOps(file: File, cs: String) extends WriteSupport {
+
+  def string(s: String): Unit = {
+    val bw = makeWriter(file, cs)
+    bw.write(s)
+    bw.close()
+  }
+
+  def array(arr: Array[String]): Unit = {
+    val bw = makeWriter(file, cs)
+    var i = 0
+    while (i < arr.length) {
+      bw.write(arr(i))
+      i += 1
+    }
+    bw.close()
+  }
+
+  def iterator(it: Iterator[String]): Unit = {
+    val bw = makeWriter(file, cs)
+    while (it.hasNext) bw.write(it.next)
+    bw.close()
+  }
+
+  def iterable(strs: Iterable[String]): Unit =
+    iterator(strs.iterator)
+
+  def using(f: BufferedWriter => Unit): Unit = {
+    val bw = makeWriter(file, cs)
+    f(bw)
+    bw.close()
+  }
+}
+
+class WriteLinesOps(file: File, cs: String) extends WriteSupport {
+
+  def string(s: String): Unit = {
+    val bw = makeWriter(file, cs)
+    bw.write(s)
+    bw.newLine()
+    bw.close()
+  }
+
+  def array(arr: Array[String]): Unit = {
+    val bw = makeWriter(file, cs)
+    var i = 0
+    while (i < arr.length) {
+      bw.write(arr(i))
+      bw.newLine()
+      i += 1
+    }
+    bw.close()
+  }
+
+  def iterator(it: Iterator[String]): Unit = {
+    val bw = makeWriter(file, cs)
+    while (it.hasNext) {
+      bw.write(it.next)
+      bw.newLine()
+    }
+    bw.close()
+  }
+
+  def iterable(strs: Iterable[String]): Unit =
+    iterator(strs.iterator)
 }
