@@ -80,6 +80,38 @@ val chars: Array[Char] = file.chars("KOI8-R").array
 val lines: Iterator[String] = file.lines("UTF-16").iterator
 ```
 
+You can also write simple strings and characters to files using
+`.writer` (which return a `java.io.BufferedWriter`):
+
+```scala
+val rows: Seq[String] = ...
+
+// use .writer to open a writer
+val w = "report.txt".file.writer
+data.foreach(row => w.write(row + "\n"))
+w.close()
+
+// alternately, use .withWriter
+"report2.txt".file.withWriter { w =>
+  data.foreach(row => w.write(row + "\n"))
+  // closes w automatically
+}
+
+// you can specify alternate charsets too
+val wr = "report-r.txt".file.writer("KOI8-R")
+```
+
+For quick reference, `BufferedWriter` support the following useful
+methods:
+
+| Method      | Description                    |
+|-------------|--------------------------------|
+|`.close()`   | Close the writer.              |
+|`.newLine()` | Write a newline (`'\n'`).      |
+|`.write(s)`  | Write the string `s`.          |
+|`.write(c)`  | Write the character `c`.       |
+|`.write(cs)` | Write the character array `cs`.|
+
 ### Disclaimers
 
 Any project named after robots living in a junkyard, and inspired by
