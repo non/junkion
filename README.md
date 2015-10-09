@@ -71,13 +71,14 @@ val wordCount: Int = file.lines.foldLeft(0)((n, s) => n + s.split(" +").length)
 ```
 
 By default all operations involving `String` and `Char` use the UTF-8
-encoding, but alternate character encodings can be provided explicitly:
+encoding, but alternate character encodings can be provided explicitly
+using `.as`:
 
 ```scala
-val s1: String = file.string("Big5")
-val s2: String = file.bytes.string("ISO-8859-1")
-val chars: Array[Char] = file.chars("KOI8-R").array
-val lines: Iterator[String] = file.lines("UTF-16").iterator
+val s1: String = file.as("Big5").string
+val s2: String = file.as("ISO-8859-1").bytes.string
+val chars: Array[Char] = file.as("KOI8-R").chars.array
+val lines: Iterator[String] = file.as("UTF-16").lines.iterator
 ```
 
 You can also write simple strings and characters to files using
@@ -86,25 +87,25 @@ You can also write simple strings and characters to files using
 ```scala
 val file = "/tmp/data.txt".file
 
-file.write.string(s)     // s: String
-file.write.array(arr)    // arr: Array[String]
-file.write.iterator(it)  // it: Iterator[String]
-file.write.iterable(seq) // seq: Iterable[String]
+file.write(s)     // s: String
+file.write(arr)   // arr: Array[String]
+file.write(it)    // it: Iterator[String]
+file.write(seq)   // seq: Iterable[String]
 
 // append a newline after each string to be written
-file.writelines.string(s)
-file.writelines.array(arr)
-file.writelines.iterator(it)
-file.writelines.iterable(seq)
+file.writelines(s)
+file.writelines(arr)
+file.writelines(it)
+file.writelines(seq)
 
 // optionally specify encodings
-file.write("Big5").string(s)
-file.write("ISO-8859-1").array(arr)
-file.write("KOI8-R").iterator(it)
-file.write("UTF-16").iterable(seq)
+file.as("Big5").write(s)
+file.as("ISO-8859-1").write(arr)
+file.as("KOI8-R").write(it)
+file.as("UTF-16").write(seq)
 
 // optionally work directly with (w: BufferedWriter)
-file.write("UTF-8").using { w =>
+file.as("UTF-8").writing { w =>
   ... /* writes to w, which is automatically closed */
 }
 ```
