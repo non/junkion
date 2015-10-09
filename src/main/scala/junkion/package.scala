@@ -2,7 +2,10 @@ package junkion
 
 import language.implicitConversions
 
-import java.io.{BufferedReader, File, FileInputStream, InputStreamReader}
+import java.io.File
+import java.io.{BufferedReader, FileInputStream, InputStreamReader}
+import java.io.{BufferedWriter, FileOutputStream, OutputStreamWriter}
+
 import java.nio.{ByteBuffer, CharBuffer}
 import java.nio.charset.Charset
 import java.nio.channels.FileChannel.MapMode.READ_ONLY
@@ -16,9 +19,28 @@ object implicits {
 
 class StringOps(val s: String) extends AnyVal {
   def file(): File = new File(s)
+  def tempfile(): File = File.createTempFile(s, ".tmp")
 }
 
 class FileOps(val file: File) extends AnyVal {
+
+  def writer: BufferedWriter = writer()
+
+  def writer(cs: String = "UTF-8"): BufferedWriter = {
+    val fos = new FileOutputStream(file)
+    val osw = new OutputStreamWriter(fos, cs)
+    new BufferedWriter(osw)
+  }
+
+  def withWriter(f: BufferedWriter => Unit): Unit =
+    withWriter()(f)
+
+  def withWriter(cs: String = "UTF-8")(f: BufferedWriter => Unit): Unit = {
+    val w = writer(cs)
+    f(w)
+    w.close()
+  }
+
   def bytes(): BytesOps = new BytesOps(file)
 
   def chars: CharsOps = chars()
@@ -53,10 +75,11 @@ class BytesOps(val file: File) extends AnyVal {
   def byteBuffer(): ByteBuffer =
     ByteBuffer.wrap(array)
 
-  def chunked(): Stream[ByteBuffer] = {
+  def chunked(bufSize: Int = 131072): Stream[ByteBuffer] = {
+    require(bufSize > 0)
     val ch = new FileInputStream(file).getChannel()
     def next(): Stream[ByteBuffer] = {
-      val bb = ByteBuffer.allocate(131072)
+      val bb = ByteBuffer.allocate(bufSize)
       val n = ch.read(bb)
       if (n > -1) bb #:: next() else {
         ch.close()
