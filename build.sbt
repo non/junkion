@@ -2,11 +2,11 @@ name := "junkion"
 
 organization := "us.mocul"
 
-version := "0.0.2"
+version := "0.0.3"
 
-scalaVersion := "2.11.4"
+scalaVersion := "2.11.7"
 
-crossScalaVersions := Seq("2.10.4", "2.11.4")
+crossScalaVersions := Seq("2.10.5", "2.11.7")
 
 libraryDependencies ++= Seq(
   "org.scalatest" %% "scalatest" % "2.1.3" % "test",

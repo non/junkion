@@ -2,7 +2,10 @@ package junkion
 
 import language.implicitConversions
 
-import java.io.{BufferedReader, File, FileInputStream, InputStreamReader}
+import java.io.File
+import java.io.{BufferedReader, FileInputStream, InputStreamReader}
+import java.io.{BufferedWriter, FileOutputStream, OutputStreamWriter}
+
 import java.nio.{ByteBuffer, CharBuffer}
 import java.nio.charset.Charset
 import java.nio.channels.FileChannel.MapMode.READ_ONLY
@@ -16,22 +19,29 @@ object implicits {
 
 class StringOps(val s: String) extends AnyVal {
   def file(): File = new File(s)
+  def tempfile(): File = File.createTempFile(s, ".tmp")
 }
 
-class FileOps(val file: File) extends AnyVal {
-  def bytes(): BytesOps = new BytesOps(file)
+abstract class GenericFileOps(val file: File, val cs: String) extends WriteOps {
+  def bytes(): BytesOps = new BytesOps(file, cs)
 
-  def chars: CharsOps = chars()
-  def chars(cs: String = "UTF-8"): CharsOps = new CharsOps(file, cs)
+  def chars: CharsOps = new CharsOps(file, cs)
+  def chars(cs: String): CharsOps = new CharsOps(file, cs)
 
-  def lines: LinesOps = lines()
-  def lines(cs: String = "UTF-8"): LinesOps = new LinesOps(file, cs)
+  def lines: LinesOps = new LinesOps(file, cs)
+  def lines(cs: String): LinesOps = new LinesOps(file, cs)
 
-  def string: String = new BytesOps(file).string()
-  def string(cs: String = "UTF-8"): String = new BytesOps(file).string(cs)
+  def string: String = new BytesOps(file, cs).string
+  def string(cs: String): String = new BytesOps(file, cs).string
 }
 
-class BytesOps(val file: File) extends AnyVal {
+class FileOps(f: File) extends GenericFileOps(f, "UTF-8") {
+  def as(cs: String): AsOps = new AsOps(file, cs)
+}
+
+class AsOps(f: File, c: String) extends GenericFileOps(f, c)
+
+class BytesOps(val file: File, cs: String) {
   def array(): Array[Byte] = {
     val fis = new FileInputStream(file)
     val len = file.length.toInt
@@ -53,10 +63,11 @@ class BytesOps(val file: File) extends AnyVal {
   def byteBuffer(): ByteBuffer =
     ByteBuffer.wrap(array)
 
-  def chunked(): Stream[ByteBuffer] = {
+  def chunked(bufSize: Int = 131072): Stream[ByteBuffer] = {
+    require(bufSize > 0)
     val ch = new FileInputStream(file).getChannel()
     def next(): Stream[ByteBuffer] = {
-      val bb = ByteBuffer.allocate(131072)
+      val bb = ByteBuffer.allocate(bufSize)
       val n = ch.read(bb)
       if (n > -1) bb #:: next() else {
         ch.close()
@@ -67,9 +78,9 @@ class BytesOps(val file: File) extends AnyVal {
   }
 
   def string: String =
-    string()
+    new String(array, cs)
 
-  def string(cs: String = "UTF-8"): String =
+  def string(cs: String): String =
     new String(array, cs)
 }
 
@@ -78,10 +89,10 @@ class CharsOps(file: File, cs: String) {
     charBuffer.array()
 
   def charBuffer(): CharBuffer =
-    Charset.forName(cs).decode(new BytesOps(file).byteBuffer)
+    Charset.forName(cs).decode(new BytesOps(file, cs).byteBuffer)
 
   def string(): String =
-    new BytesOps(file).string(cs)
+    new BytesOps(file, cs).string
 }
 
 class LinesOps(file: File, cs: String) {
@@ -143,5 +154,78 @@ class LinesOps(file: File, cs: String) {
       }
     }
     stream()
+  }
+}
+
+trait WriteOps {
+
+  def file: File
+  def cs: String
+
+  protected[this] def makeWriter(): BufferedWriter = {
+    val fos = new FileOutputStream(file)
+    val osw = new OutputStreamWriter(fos, cs)
+    new BufferedWriter(osw)
+  }
+
+  def write(s: String): Unit = {
+    val bw = makeWriter()
+    bw.write(s)
+    bw.close()
+  }
+
+  def write(arr: Array[String]): Unit = {
+    val bw = makeWriter()
+    var i = 0
+    while (i < arr.length) {
+      bw.write(arr(i))
+      i += 1
+    }
+    bw.close()
+  }
+
+  def write(it: Iterator[String]): Unit = {
+    val bw = makeWriter()
+    while (it.hasNext) bw.write(it.next)
+    bw.close()
+  }
+
+  def write(strs: Iterable[String]): Unit =
+    write(strs.iterator)
+
+  def writelines(s: String): Unit = {
+    val bw = makeWriter()
+    bw.write(s)
+    bw.newLine()
+    bw.close()
+  }
+
+  def writelines(arr: Array[String]): Unit = {
+    val bw = makeWriter()
+    var i = 0
+    while (i < arr.length) {
+      bw.write(arr(i))
+      bw.newLine()
+      i += 1
+    }
+    bw.close()
+  }
+
+  def writelines(it: Iterator[String]): Unit = {
+    val bw = makeWriter()
+    while (it.hasNext) {
+      bw.write(it.next)
+      bw.newLine()
+    }
+    bw.close()
+  }
+
+  def writelines(strs: Iterable[String]): Unit =
+    writelines(strs.iterator)
+
+  def writing(f: BufferedWriter => Unit): Unit = {
+    val bw = makeWriter()
+    f(bw)
+    bw.close()
   }
 }

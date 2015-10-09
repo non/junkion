@@ -71,13 +71,43 @@ val wordCount: Int = file.lines.foldLeft(0)((n, s) => n + s.split(" +").length)
 ```
 
 By default all operations involving `String` and `Char` use the UTF-8
-encoding, but alternate character encodings can be provided explicitly:
+encoding, but alternate character encodings can be provided explicitly
+using `.as`:
 
 ```scala
-val s1: String = file.string("Big5")
-val s2: String = file.bytes.string("ISO-8859-1")
-val chars: Array[Char] = file.chars("KOI8-R").array
-val lines: Iterator[String] = file.lines("UTF-16").iterator
+val s1: String = file.as("Big5").string
+val s2: String = file.as("ISO-8859-1").bytes.string
+val chars: Array[Char] = file.as("KOI8-R").chars.array
+val lines: Iterator[String] = file.as("UTF-16").lines.iterator
+```
+
+You can also write simple strings and characters to files using
+`.write` and `.writelines`:
+
+```scala
+val file = "/tmp/data.txt".file
+
+file.write(s)     // s: String
+file.write(arr)   // arr: Array[String]
+file.write(it)    // it: Iterator[String]
+file.write(seq)   // seq: Iterable[String]
+
+// append a newline after each string to be written
+file.writelines(s)
+file.writelines(arr)
+file.writelines(it)
+file.writelines(seq)
+
+// optionally specify encodings
+file.as("Big5").write(s)
+file.as("ISO-8859-1").write(arr)
+file.as("KOI8-R").write(it)
+file.as("UTF-16").write(seq)
+
+// optionally work directly with (w: BufferedWriter)
+file.as("UTF-8").writing { w =>
+  ... /* writes to w, which is automatically closed */
+}
 ```
 
 ### Disclaimers
