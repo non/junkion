@@ -32,7 +32,7 @@ include Junkion via the following `build.sbt` snippet:
 ```
 resolvers += "bintray/non" at "http://dl.bintray.com/non/maven"
 
-libraryDependencies += "us.mocul" %% "junkion" % "0.0.2"
+libraryDependencies += "us.mocul" %% "junkion" % "0.0.3"
 ```
 
 ### Recipes
@@ -121,7 +121,7 @@ Any project named after robots living in a junkyard, and inspired by
 > AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 > LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 > OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-> SOFTWARE. 
+> SOFTWARE.
 
 ### Copyright and License
 
