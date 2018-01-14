@@ -1,6 +1,5 @@
 package junkion
 
-import org.scalatest.matchers.ShouldMatchers
 import org.scalatest._
 import prop._
 
