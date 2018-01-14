@@ -23,16 +23,11 @@ library that is efficient in "normal" cases.
 
 ### Getting Junkion
 
-Junkion is published to [bintray](https://bintray.com/) using the
-[bintray-sbt](https://github.com/softprops/bintray-sbt) plugin.
-
-Junkion supports Scala 2.10.x and 2.11.x. If you use SBT, you can
+Junkion supports Scala 2.10, 2.11, and 2.12. If you use SBT, you can
 include Junkion via the following `build.sbt` snippet:
 
 ```
-resolvers += "bintray/non" at "http://dl.bintray.com/non/maven"
-
-libraryDependencies += "us.mocul" %% "junkion" % "0.0.3"
+libraryDependencies += "org.spire-math" %% "junkion" % "0.2.0"
 ```
 
 ### Recipes
@@ -129,4 +124,4 @@ All code is available to you under the MIT license, available at
 http://opensource.org/licenses/mit-license.php and also in the
 [COPYING](COPYING) file.
 
-Copyright Erik Osheim, 2014.
+Copyright Erik Osheim, 2014-2018.
