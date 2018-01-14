@@ -1,5 +1,5 @@
 name := "junkion"
-organization := "us.mocul"
+organization := "org.spire-math"
 licenses += ("MIT", url("http://opensource.org/licenses/MIT"))
 homepage := Some(url("http://github.com/non/junkion"))
 
